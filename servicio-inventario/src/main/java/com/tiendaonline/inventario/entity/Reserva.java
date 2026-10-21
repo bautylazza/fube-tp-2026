@@ -30,8 +30,9 @@ public class Reserva {
     @Column(nullable = false)
     private Integer cantidad;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String estado;
+    private EstadoReserva estado;
 
     @Column(nullable = false)
     private LocalDateTime fechaCreacion;

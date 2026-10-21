@@ -26,7 +26,6 @@ public class Producto {
     @Column(nullable = false)
     private String nombre;
 
-    // me falta ponerle que por default valga 0 y que siempre sea >= 0
     @Column(nullable = false, name = "cantidad_disponible")
     private Integer cantidadDisponible;
 }
