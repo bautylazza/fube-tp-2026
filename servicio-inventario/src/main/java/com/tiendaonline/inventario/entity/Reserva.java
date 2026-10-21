@@ -31,7 +31,7 @@ public class Reserva {
     private Integer cantidad;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private EstadoReserva estado;
 
     @Column(nullable = false)
