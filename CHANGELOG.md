@@ -16,6 +16,7 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 
 ### Fixed
 - Execution permission to gradlew
+- (T1.2)rename findByClienteID to findByClienteId
 
 ### Removed
 

@@ -9,6 +9,6 @@ import com.tiendaonline.pedidos.entity.Pedido;
 
 public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 
-    List<Pedido> findByClienteID(UUID ClienteId);
+    List<Pedido> findByClienteId(UUID ClienteId);
 
 }
