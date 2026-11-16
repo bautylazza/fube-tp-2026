@@ -10,6 +10,7 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 ### Added
 - (T1.2):JPA entities for the three services
 - (T1.2):JPA repositories
+- (T1.1): Initial product Seed
 
 ### Changed
 
