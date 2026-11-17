@@ -15,12 +15,14 @@ import com.tiendaonline.clientes.dto.ClienteResponse;
 import com.tiendaonline.clientes.dto.CrearClienteRequest;
 import com.tiendaonline.clientes.service.ClienteService;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/clientes")
+@RequestMapping("/api/v1/clientes")
 @RequiredArgsConstructor
+@Tag(name = "Clientes")
 public class ClienteController {
 
     private final ClienteService clienteService;
@@ -28,7 +30,7 @@ public class ClienteController {
     @PostMapping
     public ResponseEntity<ClienteResponse> crear(@Valid @RequestBody CrearClienteRequest request) {
         ClienteResponse creado = clienteService.registrar(request);
-        return ResponseEntity.created(URI.create("/clientes/" + creado.id())).body(creado);
+        return ResponseEntity.created(URI.create("/api/v1/clientes/" + creado.id())).body(creado);
     }
 
     @GetMapping("/{id}")

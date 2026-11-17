@@ -38,20 +38,21 @@ class ClienteControllerTest {
         when(clienteService.registrar(any()))
                 .thenReturn(new ClienteResponse(id, "Juan Perez", "juan@gmail.com", LocalDateTime.now()));
 
-        mockMvc.perform(post("/clientes")
+        mockMvc.perform(post("/api/v1/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nombre\":\"Juan Perez\",\"email\":\"juan@gmail.com\"}"))
                 .andExpect(status().isCreated())
-                .andExpect(header().string("Location", "/clientes/" + id))
+                .andExpect(header().string("Location", "/api/v1/clientes/" + id))
                 .andExpect(jsonPath("$.id").value(id.toString()));
     }
 
     @Test
-    void crearConEmailInvalidoDevuelve400() throws Exception {
-        mockMvc.perform(post("/clientes")
+    void crearConDatosInvalidosDevuelve400ConTodosLosErrores() throws Exception {
+        mockMvc.perform(post("/api/v1/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"nombre\":\"Juan Perez\",\"email\":\"no-es-email\"}"))
+                        .content("{\"nombre\":\"\",\"email\":\"no-es-email\"}"))
                 .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.nombre").exists())
                 .andExpect(jsonPath("$.errors.email").exists());
     }
 
@@ -59,7 +60,7 @@ class ClienteControllerTest {
     void crearConEmailRepetidoDevuelve409() throws Exception {
         when(clienteService.registrar(any())).thenThrow(new ConflictoException("email repetido"));
 
-        mockMvc.perform(post("/clientes")
+        mockMvc.perform(post("/api/v1/clientes")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nombre\":\"Juan Perez\",\"email\":\"juan@gmail.com\"}"))
                 .andExpect(status().isConflict())
@@ -71,7 +72,7 @@ class ClienteControllerTest {
         UUID id = UUID.randomUUID();
         when(clienteService.obtener(id)).thenThrow(new RecursoNoEncontradoException("No existe el cliente " + id));
 
-        mockMvc.perform(get("/clientes/{id}", id))
+        mockMvc.perform(get("/api/v1/clientes/{id}", id))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.title").value("Recurso no encontrado"))
                 .andExpect(jsonPath("$.detail").value("No existe el cliente " + id));
@@ -79,7 +80,7 @@ class ClienteControllerTest {
 
     @Test
     void obtenerConIdInvalidoDevuelve400() throws Exception {
-        mockMvc.perform(get("/clientes/abc"))
+        mockMvc.perform(get("/api/v1/clientes/abc"))
                 .andExpect(status().isBadRequest());
     }
 }
