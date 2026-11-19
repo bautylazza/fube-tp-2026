@@ -1,0 +1,42 @@
+package com.tiendaonline.clientes.service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import com.tiendaonline.clientes.dto.ClienteResponse;
+import com.tiendaonline.clientes.dto.CrearClienteRequest;
+import com.tiendaonline.clientes.entity.Cliente;
+import com.tiendaonline.clientes.exception.ConflictoException;
+import com.tiendaonline.clientes.exception.RecursoNoEncontradoException;
+import com.tiendaonline.clientes.repository.ClienteRepository;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class ClienteService {
+
+    private final ClienteRepository clienteRepository;
+
+    @Transactional
+    public ClienteResponse registrar(CrearClienteRequest request) {
+        if (clienteRepository.existsByEmail(request.email())) {
+            throw new ConflictoException("Ya existe un cliente con el email " + request.email());
+        }
+        Cliente cliente = new Cliente();
+        cliente.setNombre(request.nombre());
+        cliente.setEmail(request.email());
+        cliente.setFechaAlta(LocalDateTime.now());
+        return ClienteResponse.desde(clienteRepository.save(cliente));
+    }
+
+    @Transactional(readOnly = true)
+    public ClienteResponse obtener(UUID id) {
+        return clienteRepository.findById(id)
+                .map(ClienteResponse::desde)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el cliente " + id));
+    }
+}
