@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: servicio-inventario
+  datasource:
+    url: jdbc:postgresql://localhost:5432/inventario_db_test
+    username: postgres
+    password: postgres
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
