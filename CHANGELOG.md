@@ -11,6 +11,9 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T1.2):JPA entities for the three services
 - (T1.2):JPA repositories
 - (T1.1): Initial product Seed
+- (T1.3): Error handling with ProblemDetail in servicio-clientes
+- (T1.4): POST /api/v1/clientes and GET /api/v1/clientes/{id}
+- (T1.6): OpenAPI tag and DTO examples for servicio-clientes
 
 ### Changed
 
