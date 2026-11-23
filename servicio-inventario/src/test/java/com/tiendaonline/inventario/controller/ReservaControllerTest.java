@@ -10,35 +10,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.tiendaonline.inventario.dto.ReservaResponse;
 import com.tiendaonline.inventario.entity.EstadoReserva;
-import com.tiendaonline.inventario.exception.GlobalExceptionHandler;
 import com.tiendaonline.inventario.service.ReservaService;
 import com.tiendaonline.inventario.exception.ReferenciaInvalidaException;
 import com.tiendaonline.inventario.exception.StockInsuficienteException;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest (ReservaController.class)
 public class ReservaControllerTest {
 
-    @Mock ReservaService reservaService;
-    @InjectMocks ReservaController reservaController;
-    MockMvc mockMvc;
+    @Autowired 
+    private MockMvc mockMvc;
 
-    @BeforeEach 
-    void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(reservaController)
-                .setControllerAdvice(new GlobalExceptionHandler())
-                .build();
-    }
+    @MockBean 
+    private ReservaService reservaService;
 
     @Test
     void reservarDevuelve201() throws Exception {
