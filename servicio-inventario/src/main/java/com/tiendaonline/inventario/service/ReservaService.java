@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.tiendaonline.inventario.dto.ReservaRequest;
 import com.tiendaonline.inventario.dto.ReservaResponse;
+import com.tiendaonline.inventario.dto.ReservasResponse;
 import com.tiendaonline.inventario.entity.EstadoReserva;
 import com.tiendaonline.inventario.entity.Producto;
 import com.tiendaonline.inventario.entity.Reserva;
@@ -47,6 +48,19 @@ public class ReservaService {
         Reserva reserva = reservaRepository.findByIdParaActualizar(id)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Reserva no encontrada: " + id));
 
+                return liberarReserva(reserva);
+    }
+
+    @Transactional 
+    public ReservasResponse liberarPorPedido(UUID pedidoId) {
+        return new ReservasResponse(
+            reservaRepository.findByPedidoIdParaActualizar(pedidoId).stream()
+                .map(this::liberarReserva)
+                .toList()
+        );
+    }
+
+    private ReservaResponse liberarReserva(Reserva reserva) {
         if (reserva.getEstado() == EstadoReserva.LIBERADA) {
             return ReservaResponse.fromEntity(reserva);
         }

@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.tiendaonline.inventario.dto.ActualizarReservaRequest;
 import com.tiendaonline.inventario.dto.ReservaRequest;
 import com.tiendaonline.inventario.dto.ReservaResponse;
+import com.tiendaonline.inventario.dto.ReservasResponse;
 import com.tiendaonline.inventario.service.ReservaService;
 import org.springframework.http.HttpStatus;
 
@@ -40,6 +42,11 @@ public class ReservaController {
     @PatchMapping ("/{id}")
     public ReservaResponse actualizar(@PathVariable UUID id, @Valid @RequestBody ActualizarReservaRequest request) {
         return reservaService.liberar(id);
+    }
+
+    @PatchMapping 
+    public ReservasResponse actualizarPorPedido(@RequestParam UUID pedidoId, @Valid @RequestBody ActualizarReservaRequest request) {
+        return reservaService.liberarPorPedido(pedidoId);
     }
 
 }

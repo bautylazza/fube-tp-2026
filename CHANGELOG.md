@@ -17,6 +17,7 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T1.5): GET /api/v1/productos/{id} and /disponibilidad in servicio-inventario
 - (T2.1): POST /api/v1/reservas in servicio-inventario
 - (T2.2): PATCH /api/v1/reservas/{id} in servicio-inventario
+- (A4): PATCH /api/v1/reservas?pedidoId= in servicio-inventario
 
 
 ### Changed
