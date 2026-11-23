@@ -2,6 +2,7 @@ package com.tiendaonline.inventario.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -19,6 +20,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.tiendaonline.inventario.dto.ReservaResponse;
 import com.tiendaonline.inventario.entity.EstadoReserva;
 import com.tiendaonline.inventario.service.ReservaService;
+import com.tiendaonline.inventario.exception.RecursoNoEncontradoException;
 import com.tiendaonline.inventario.exception.ReferenciaInvalidaException;
 import com.tiendaonline.inventario.exception.StockInsuficienteException;
 
@@ -88,6 +90,48 @@ public class ReservaControllerTest {
                 .content("{\"productoId\":\"" + productoId + "\", \"pedidoId\":\"" + pedidoId + "\", \"cantidad\":2}"))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(jsonPath("$.title").value("Referencia invalida"));
+    }
+
+    @Test 
+    void liberarDevuelve200() throws Exception {
+        UUID id = UUID.randomUUID();
+        
+
+        when(reservaService.liberar(id))
+                .thenReturn(new ReservaResponse(
+                        id, UUID.randomUUID(), UUID.randomUUID(), 2, EstadoReserva.LIBERADA, LocalDateTime.now()));
+        
+        mockMvc.perform(patch("/api/v1/reservas/{id}", id)
+                .contentType("application/json")
+                .content("{\"estado\":\"LIBERADA\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(id.toString()))
+                .andExpect(jsonPath("$.estado").value("LIBERADA"));
+    }
+
+    @Test 
+    void liberarReservaInexistenteDevuelve404() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        when(reservaService.liberar(id))
+                .thenThrow(new RecursoNoEncontradoException("Reserva no encontrada: " + id));
+
+        mockMvc.perform(patch("/api/v1/reservas/{id}", id)
+                .contentType("application/json")
+                .content("{\"estado\":\"LIBERADA\"}"))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.title").value("Recurso no encontrado"));
+    }
+
+    @Test 
+    void actualizarAOtroEstadoDevuelve400() throws Exception {
+        UUID id = UUID.randomUUID();
+
+        mockMvc.perform(patch("/api/v1/reservas/{id}", id)
+                .contentType("application/json")
+                .content("{\"estado\":\"ACTIVA\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.estado").exists());
     }
 
 }

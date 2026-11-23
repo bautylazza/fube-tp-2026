@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,6 +24,7 @@ import com.tiendaonline.inventario.entity.Producto;
 import com.tiendaonline.inventario.entity.Reserva;
 import com.tiendaonline.inventario.repository.ProductoRepository;
 import com.tiendaonline.inventario.repository.ReservaRepository;
+import com.tiendaonline.inventario.exception.RecursoNoEncontradoException;
 import com.tiendaonline.inventario.exception.ReferenciaInvalidaException;
 import com.tiendaonline.inventario.exception.StockInsuficienteException;
 
@@ -69,5 +71,40 @@ public class ReservaServiceTest {
 
         assertThatThrownBy(() -> reservaService.reservar(new ReservaRequest(productoId, pedidoId, 2)))
                 .isInstanceOf(ReferenciaInvalidaException.class);
+    }
+
+    @Test 
+    void liberarReservaActivaDevuelveElStock() {
+        UUID reservaId = UUID.randomUUID();
+        Reserva reserva = new Reserva(reservaId, productoId, pedidoId, 2, EstadoReserva.ACTIVA, LocalDateTime.now());
+        Producto producto = new Producto(productoId, "SKU321", "Teclado", 15);
+        when(reservaRepository.findByIdParaActualizar(reservaId)).thenReturn(Optional.of(reserva));
+        when(productoRepository.findByIdParaActualizar(productoId)).thenReturn(Optional.of(producto));
+
+        ReservaResponse response = reservaService.liberar(reservaId);
+
+        assertThat(response.estado()).isEqualTo(EstadoReserva.LIBERADA);
+        assertThat(producto.getCantidadDisponible()).isEqualTo(17);
+    }
+
+    @Test 
+    void liberarReservaYaLiberadaNoVuelveASumarStock() {
+        UUID reservaId = UUID.randomUUID();
+        Reserva reserva = new Reserva(reservaId, productoId, pedidoId, 2, EstadoReserva.LIBERADA, LocalDateTime.now());
+        when(reservaRepository.findByIdParaActualizar(reservaId)).thenReturn(Optional.of(reserva));
+
+        ReservaResponse response = reservaService.liberar(reservaId);
+
+        assertThat(response.estado()).isEqualTo(EstadoReserva.LIBERADA);
+        verify(productoRepository, never()).findByIdParaActualizar(any());
+    }
+
+    @Test 
+    void liberarReservaInexistenteLanzaNoEncontrado() {
+        UUID reservaId = UUID.randomUUID();
+        when(reservaRepository.findByIdParaActualizar(reservaId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> reservaService.liberar(reservaId))
+                .isInstanceOf(RecursoNoEncontradoException.class);
     }
 }
