@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tiendaonline.inventario.dto.ReservaRequest;
+import com.tiendaonline.inventario.dto.ReservaResponse;
 import com.tiendaonline.inventario.dto.ReservasResponse;
 import com.tiendaonline.inventario.entity.EstadoReserva;
 import com.tiendaonline.inventario.entity.Producto;
