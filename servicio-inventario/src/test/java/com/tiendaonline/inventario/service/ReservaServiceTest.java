@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,7 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tiendaonline.inventario.dto.ReservaRequest;
-import com.tiendaonline.inventario.dto.ReservaResponse;
+import com.tiendaonline.inventario.dto.ReservasResponse;
 import com.tiendaonline.inventario.entity.EstadoReserva;
 import com.tiendaonline.inventario.entity.Producto;
 import com.tiendaonline.inventario.entity.Reserva;
@@ -106,5 +107,29 @@ public class ReservaServiceTest {
 
         assertThatThrownBy(() -> reservaService.liberar(reservaId))
                 .isInstanceOf(RecursoNoEncontradoException.class);
+    }
+
+    @Test
+    void liberarPorPedidoLiberaSoloLasActivas() {
+        UUID otroProductoId = UUID.randomUUID();
+        Reserva activa = new Reserva(UUID.randomUUID(), productoId, pedidoId, 2, EstadoReserva.ACTIVA, LocalDateTime.now());
+        Reserva liberada = new Reserva(UUID.randomUUID(), otroProductoId, pedidoId, 3, EstadoReserva.LIBERADA, LocalDateTime.now());
+        Producto producto = new Producto(productoId, "SKU123", "Producto Test", 10);
+        when(reservaRepository.findByPedidoIdParaActualizar(pedidoId)).thenReturn(List.of(activa, liberada));
+        when(productoRepository.findByIdParaActualizar(productoId)).thenReturn(Optional.of(producto));
+
+        ReservasResponse response = reservaService.liberarPorPedido(pedidoId);
+
+        assertThat(response.reservas()).hasSize(2);
+        assertThat(response.reservas()).allMatch(r -> r.estado() == EstadoReserva.LIBERADA);
+        assertThat(producto.getCantidadDisponible()).isEqualTo(12);
+        verify(productoRepository, never()).findByIdParaActualizar(otroProductoId);
+    }
+
+    @Test
+    void liberarPorPedidoSinReservasDevuelveListaVacia() {
+        when(reservaRepository.findByPedidoIdParaActualizar(pedidoId)).thenReturn(List.of());
+
+        assertThat(reservaService.liberarPorPedido(pedidoId).reservas()).isEmpty();
     }
 }

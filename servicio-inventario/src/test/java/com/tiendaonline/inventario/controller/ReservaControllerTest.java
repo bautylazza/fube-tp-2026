@@ -4,11 +4,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -134,4 +136,28 @@ public class ReservaControllerTest {
                 .andExpect(jsonPath("$.errors.estado").exists());
     }
 
+    @Test
+    void liberarPorPedidoDevuelve200() throws Exception {
+        UUID id = UUID.randomUUID(), pedidoId = UUID.randomUUID();
+
+        when(reservaService.liberarPorPedido(pedidoId))
+                .thenReturn(new ReservasResponse(List.of(new ReservaResponse(
+                        id, UUID.randomUUID(), pedidoId, 2, EstadoReserva.LIBERADA, LocalDateTime.now()))));
+
+        mockMvc.perform(patch("/api/v1/reservas")
+                .param("pedidoId", pedidoId.toString())
+                .contentType("application/json")
+                .content("{\"estado\":\"LIBERADA\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.reservas[0].id").value(id.toString()))
+                .andExpect(jsonPath("$.reservas[0].estado").value("LIBERADA"));
+    }
+
+    @Test
+    void liberarPorPedidoSinPedidoIdDevuelve400() throws Exception {
+        mockMvc.perform(patch("/api/v1/reservas")
+                .contentType("application/json")
+                .content("{\"estado\":\"LIBERADA\"}"))
+                .andExpect(status().isBadRequest());
+    }
 }

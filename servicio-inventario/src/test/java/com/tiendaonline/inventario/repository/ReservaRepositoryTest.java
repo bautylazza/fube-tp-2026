@@ -3,6 +3,7 @@ package com.tiendaonline.inventario.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -38,5 +39,19 @@ public class ReservaRepositoryTest {
 
         assertThat(encontrado.getEstado()).isEqualTo(EstadoReserva.ACTIVA);
         assertThat(em.getEntityManager().getLockMode(encontrado)).isEqualTo(LockModeType.PESSIMISTIC_WRITE);
+    }
+
+    @Test
+    void buscarPorPedidoParaActualizarBloqueaSoloLasDelPedido() {
+        UUID pedidoId = UUID.randomUUID();
+        Producto producto = em.persistAndFlush(new Producto(null, "TESTLOCK2", "Teclado", 10));
+        Reserva delPedido = em.persistAndFlush(new Reserva(null, producto.getId(), pedidoId, 2, EstadoReserva.ACTIVA, LocalDateTime.now()));
+        em.persistAndFlush(new Reserva(null, producto.getId(), UUID.randomUUID(), 3, EstadoReserva.ACTIVA, LocalDateTime.now()));
+       em.clear();
+
+        List<Reserva> encontradas = reservaRepository.findByPedidoIdParaActualizar(pedidoId);
+
+        assertThat(encontradas).extracting(Reserva::getId).containsExactly(delPedido.getId());
+        assertThat(em.getEntityManager().getLockMode(encontradas.get(0))).isEqualTo(LockModeType.PESSIMISTIC_WRITE);
     }
 }
