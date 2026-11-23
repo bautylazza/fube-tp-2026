@@ -14,23 +14,26 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tiendaonline.inventario.dto.DisponibilidadResponse;
+import com.tiendaonline.inventario.dto.ProductoResponse;
+import com.tiendaonline.inventario.entity.Producto;
+import com.tiendaonline.inventario.exception.RecursoNoEncontradoException;
 import com.tiendaonline.inventario.repository.ProductoRepository;
 
 @ExtendWith (MockitoExtension.class)
-public class ProductServiceTest {
+public class ProductoServiceTest {
 
 
     @Mock ProductoRepository productoRepository;
-    @InjectMocks ProductService productService;
+    @InjectMocks ProductoService productoService;
 
     private final UUID productId = UUID.randomUUID();
 
     @Test
     void obtenerDevuelveElProducto() {
-        Producto producto = new Producto(productId, "SKU1", "Teclado Mecanico", 10, 100.0);
+        Producto producto = new Producto(productId, "SKU1", "Teclado Mecanico", 10);
         when(productoRepository.findById(productId)).thenReturn(Optional.of(producto));
 
-        ProductoResponse response = productService.obtener(productId);
+        ProductoResponse response = productoService.obtener(productId);
 
         assertThat(response.id()).isEqualTo(productId);
         assertThat(response.sku()).isEqualTo("SKU1");
@@ -40,9 +43,9 @@ public class ProductServiceTest {
 
     @Test 
     void disponibilidadConStockDevuelveDisponible() {
-        when(productoRepository.findById(productId)).thenReturn(Optional.of(new Producto(productId, "SKU1", "Teclado Mecanico", 10, 100.0)));
+        when(productoRepository.findById(productId)).thenReturn(Optional.of(new Producto(productId, "SKU1", "Teclado Mecanico", 10)));
 
-        DisponibilidadResponse response = productService.obtenerDisponibilidad(productId);
+        DisponibilidadResponse response = productoService.obtenerDisponibilidad(productId);
 
         assertThat(response.cantidadDisponible()).isEqualTo(10);
         assertThat(response.disponible()).isTrue();
@@ -50,20 +53,19 @@ public class ProductServiceTest {
 
     @Test 
     void disponibilidadSinStockDevuelveNoDisponible() {
-        when(productoRepository.findById(productId)).thenReturn(Optional.of(new Producto(productId, "SKU1", "Teclado Mecanico", 0, 100.0)));
+        when(productoRepository.findById(productId)).thenReturn(Optional.of(new Producto(productId, "SKU1", "Teclado Mecanico", 0)));
 
-        DisponibilidadResponse response = productService.obtenerDisponibilidad(productId);
+        DisponibilidadResponse response = productoService.obtenerDisponibilidad(productId);
 
         assertThat(response.cantidadDisponible()).isEqualTo(0);
         assertThat(response.disponible()).isFalse();
-    }
     }
 
     @Test 
     void productoNoEncontradoLanzaExcepcion() {
         when(productoRepository.findById(productId)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> productService.obtener(productId))
+        assertThatThrownBy(() -> productoService.obtener(productId))
                 .isInstanceOf(RecursoNoEncontradoException.class)
                 .hasMessage("Producto no encontrado con id: " + productId);
     }
