@@ -1,6 +1,7 @@
 package com.tiendaonline.inventario.service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +11,7 @@ import com.tiendaonline.inventario.dto.ReservaResponse;
 import com.tiendaonline.inventario.entity.EstadoReserva;
 import com.tiendaonline.inventario.entity.Producto;
 import com.tiendaonline.inventario.entity.Reserva;
+import com.tiendaonline.inventario.exception.RecursoNoEncontradoException;
 import com.tiendaonline.inventario.exception.ReferenciaInvalidaException;
 import com.tiendaonline.inventario.exception.StockInsuficienteException;
 import com.tiendaonline.inventario.repository.ProductoRepository;
@@ -38,5 +40,24 @@ public class ReservaService {
 
         Reserva nuevaReserva = new Reserva(null, request.productoId(), request.pedidoId(), request.cantidad(), EstadoReserva.ACTIVA, LocalDateTime.now());
         return ReservaResponse.fromEntity(reservaRepository.save(nuevaReserva));
+    }
+
+    @Transactional 
+    public ReservaResponse liberar(UUID id) {
+        Reserva reserva = reservaRepository.findByIdParaActualizar(id)
+                .orElseThrow(() -> new RecursoNoEncontradoException("Reserva no encontrada: " + id));
+
+        if (reserva.getEstado() == EstadoReserva.LIBERADA) {
+            return ReservaResponse.fromEntity(reserva);
+        }
+
+        Producto producto = productoRepository.findByIdParaActualizar(reserva.getProductoId())
+                .orElseThrow(() -> new RecursoNoEncontradoException("Producto no encontrado para la reserva: " + reserva.getProductoId()));
+
+        producto.setCantidadDisponible(producto.getCantidadDisponible() + reserva.getCantidad());
+        productoRepository.save(producto);
+
+        reserva.setEstado(EstadoReserva.LIBERADA);
+        return ReservaResponse.fromEntity(reserva);
     }
 }

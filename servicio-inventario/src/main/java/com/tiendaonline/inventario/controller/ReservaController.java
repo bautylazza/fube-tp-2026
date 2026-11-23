@@ -1,14 +1,18 @@
 package com.tiendaonline.inventario.controller;
 
 import java.net.URI;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.tiendaonline.inventario.dto.ActualizarReservaRequest;
 import com.tiendaonline.inventario.dto.ReservaRequest;
 import com.tiendaonline.inventario.dto.ReservaResponse;
 import com.tiendaonline.inventario.service.ReservaService;
@@ -31,6 +35,11 @@ public class ReservaController {
     public ResponseEntity<ReservaResponse> reservar(@Valid @RequestBody ReservaRequest request) {
         ReservaResponse reservaResponse = reservaService.reservar(request);
         return ResponseEntity.created(URI.create("/api/v1/reservas/" + reservaResponse.id())).body(reservaResponse);
+    }
+
+    @PatchMapping ("/{id}")
+    public ReservaResponse actualizar(@PathVariable UUID id, @Valid @RequestBody ActualizarReservaRequest request) {
+        return reservaService.liberar(id);
     }
 
 }
