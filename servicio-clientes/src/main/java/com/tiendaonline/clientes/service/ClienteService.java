@@ -6,8 +6,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.tiendaonline.clientes.client.PedidosClient;
 import com.tiendaonline.clientes.dto.ClienteResponse;
 import com.tiendaonline.clientes.dto.CrearClienteRequest;
+import com.tiendaonline.clientes.dto.PedidosResponse;
 import com.tiendaonline.clientes.entity.Cliente;
 import com.tiendaonline.clientes.exception.ConflictoException;
 import com.tiendaonline.clientes.exception.RecursoNoEncontradoException;
@@ -23,6 +25,7 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
     private final FeatureFlags featureFlags;
     private final EnmascaradorPii enmascaradorPii;
+    private final PedidosClient pedidosClient;
 
     @Transactional
     public ClienteResponse registrar(CrearClienteRequest request) {
@@ -45,6 +48,13 @@ public class ClienteService {
             return enmascarar(cliente);
         }
         return cliente;
+    }
+
+    public PedidosResponse listarPedidos(UUID id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new RecursoNoEncontradoException("No existe el cliente " + id);
+        }
+        return pedidosClient.listarPorCliente(id);
     }
 
     private ClienteResponse enmascarar(ClienteResponse cliente) {

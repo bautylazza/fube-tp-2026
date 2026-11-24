@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.tiendaonline.clientes.dto.ClienteResponse;
 import com.tiendaonline.clientes.dto.CrearClienteRequest;
+import com.tiendaonline.clientes.dto.PedidosResponse;
 import com.tiendaonline.clientes.service.ClienteService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,5 +40,10 @@ public class ClienteController {
     @GetMapping("/{id}")
     public ClienteResponse obtener(@PathVariable UUID id) {
         return clienteService.obtener(id);
+    }
+
+    @GetMapping("/{id}/pedidos")
+    public PedidosResponse pedidos(@PathVariable UUID id) {
+        return clienteService.listarPedidos(id);
     }
 }
