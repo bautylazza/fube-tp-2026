@@ -21,6 +21,9 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T1.3): Error handling with ProblemDetail in servicio-pedidos
 - (T2.4): HTTP client from servicio-pedidos to servicio-clientes
 - (T2.5): HTTP client from servicio-pedidos to servicio-inventario
+- (T3.1): POST /api/v1/pedidos in servicio-pedidos
+- (T3.2): GET /api/v1/pedidos/{id} and GET /api/v1/pedidos?clienteId= in servicio-pedidos
+- (T3.3): PATCH /api/v1/pedidos/{id} in servicio-pedidos
 
 
 ### Changed
