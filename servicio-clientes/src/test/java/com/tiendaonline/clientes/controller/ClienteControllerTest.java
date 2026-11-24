@@ -8,7 +8,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
@@ -19,8 +21,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.tiendaonline.clientes.dto.ClienteResponse;
+import com.tiendaonline.clientes.dto.PedidoResponse;
+import com.tiendaonline.clientes.dto.PedidosResponse;
 import com.tiendaonline.clientes.exception.ConflictoException;
 import com.tiendaonline.clientes.exception.RecursoNoEncontradoException;
+import com.tiendaonline.clientes.exception.ServicioNoDisponibleException;
 import com.tiendaonline.clientes.service.ClienteService;
 
 @WebMvcTest(ClienteController.class)
@@ -82,5 +87,38 @@ class ClienteControllerTest {
     void obtenerConIdInvalidoDevuelve400() throws Exception {
         mockMvc.perform(get("/api/v1/clientes/abc"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void pedidosDelClienteDevuelve200ConLaLista() throws Exception {
+        UUID id = UUID.randomUUID();
+        UUID pedidoId = UUID.randomUUID();
+        LocalDateTime ahora = LocalDateTime.now();
+        when(clienteService.listarPedidos(id)).thenReturn(new PedidosResponse(List.of(
+                new PedidoResponse(pedidoId, id, "CREADO", new BigDecimal("100.00"), ahora, ahora, List.of()))));
+
+        mockMvc.perform(get("/api/v1/clientes/{id}/pedidos", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.pedidos[0].id").value(pedidoId.toString()));
+    }
+
+    @Test
+    void pedidosDeClienteInexistenteDevuelve404() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(clienteService.listarPedidos(id)).thenThrow(new RecursoNoEncontradoException("No existe el cliente " + id));
+
+        mockMvc.perform(get("/api/v1/clientes/{id}/pedidos", id))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void pedidosConServicioPedidosCaidoDevuelve503() throws Exception {
+        UUID id = UUID.randomUUID();
+        when(clienteService.listarPedidos(id))
+                .thenThrow(new ServicioNoDisponibleException("servicio-pedidos no responde", null));
+
+        mockMvc.perform(get("/api/v1/clientes/{id}/pedidos", id))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.status").value(503));
     }
 }

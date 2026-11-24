@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,11 +20,14 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.tiendaonline.clientes.client.PedidosClient;
 import com.tiendaonline.clientes.dto.ClienteResponse;
 import com.tiendaonline.clientes.dto.CrearClienteRequest;
+import com.tiendaonline.clientes.dto.PedidosResponse;
 import com.tiendaonline.clientes.entity.Cliente;
 import com.tiendaonline.clientes.exception.ConflictoException;
 import com.tiendaonline.clientes.exception.RecursoNoEncontradoException;
+import com.tiendaonline.clientes.exception.ServicioNoDisponibleException;
 import com.tiendaonline.clientes.featureflag.FeatureFlags;
 import com.tiendaonline.clientes.repository.ClienteRepository;
 
@@ -38,6 +42,9 @@ class ClienteServiceTest {
 
     @Spy
     private EnmascaradorPii enmascaradorPii;
+
+    @Mock
+    private PedidosClient pedidosClient;
 
     @InjectMocks
     private ClienteService clienteService;
@@ -114,5 +121,36 @@ class ClienteServiceTest {
 
         assertThatThrownBy(() -> clienteService.obtener(id))
                 .isInstanceOf(RecursoNoEncontradoException.class);
+    }
+
+    @Test
+    void listarPedidosDevuelveLoQueRespondeServicioPedidos() {
+        UUID id = UUID.randomUUID();
+        PedidosResponse pedidos = new PedidosResponse(List.of());
+        when(clienteRepository.existsById(id)).thenReturn(true);
+        when(pedidosClient.listarPorCliente(id)).thenReturn(pedidos);
+
+        assertThat(clienteService.listarPedidos(id)).isSameAs(pedidos);
+    }
+
+    @Test
+    void listarPedidosDeClienteInexistenteLanzaNoEncontradoSinLlamarAPedidos() {
+        UUID id = UUID.randomUUID();
+        when(clienteRepository.existsById(id)).thenReturn(false);
+
+        assertThatThrownBy(() -> clienteService.listarPedidos(id))
+                .isInstanceOf(RecursoNoEncontradoException.class);
+        verify(pedidosClient, never()).listarPorCliente(any());
+    }
+
+    @Test
+    void listarPedidosPropagaElErrorSiServicioPedidosNoResponde() {
+        UUID id = UUID.randomUUID();
+        when(clienteRepository.existsById(id)).thenReturn(true);
+        when(pedidosClient.listarPorCliente(id))
+                .thenThrow(new ServicioNoDisponibleException("servicio-pedidos no responde", null));
+
+        assertThatThrownBy(() -> clienteService.listarPedidos(id))
+                .isInstanceOf(ServicioNoDisponibleException.class);
     }
 }
