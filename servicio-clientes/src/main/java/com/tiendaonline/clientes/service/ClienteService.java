@@ -1,5 +1,7 @@
 package com.tiendaonline.clientes.service;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -17,7 +19,9 @@ import com.tiendaonline.clientes.featureflag.FeatureFlags;
 import com.tiendaonline.clientes.repository.ClienteRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
@@ -36,14 +40,16 @@ public class ClienteService {
         cliente.setNombre(request.nombre());
         cliente.setEmail(request.email());
         cliente.setFechaAlta(LocalDateTime.now());
-        return ClienteResponse.desde(clienteRepository.save(cliente));
+        Cliente guardado = clienteRepository.save(cliente);
+        log.info("Cliente registrado {}", kv("clienteId", guardado.getId()));
+        return ClienteResponse.desde(guardado);
     }
 
     @Transactional(readOnly = true)
     public ClienteResponse obtener(UUID id) {
         ClienteResponse cliente = clienteRepository.findById(id)
                 .map(ClienteResponse::desde)
-                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el cliente " + id));
+                .orElseThrow(() -> clienteNoEncontrado(id));
         if (featureFlags.estaActiva(FeatureFlags.MASK_PII, id.toString())) {
             return enmascarar(cliente);
         }
@@ -52,9 +58,14 @@ public class ClienteService {
 
     public PedidosResponse listarPedidos(UUID id) {
         if (!clienteRepository.existsById(id)) {
-            throw new RecursoNoEncontradoException("No existe el cliente " + id);
+            throw clienteNoEncontrado(id);
         }
         return pedidosClient.listarPorCliente(id);
+    }
+
+    private RecursoNoEncontradoException clienteNoEncontrado(UUID id) {
+        log.warn("Cliente no encontrado {}", kv("clienteId", id));
+        return new RecursoNoEncontradoException("No existe el cliente " + id);
     }
 
     private ClienteResponse enmascarar(ClienteResponse cliente) {
