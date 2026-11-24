@@ -25,7 +25,8 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
     Optional<Pedido> findByIdParaActualizar(UUID id);
 
     @Modifying
-    @Query("""update Pedido p
+    @Query("""
+            update Pedido p
             set p.estado = com.tiendaonline.pedidos.entity.EstadoPedido.EXPIRADO,
                 p.fechaActualizacion = :fecha
             where p.id = :id
