@@ -51,4 +51,19 @@ public class Pedido {
 
     @Column(nullable = false)
     private LocalDateTime fechaActualizacion;
+
+    public void agregarItem(UUID productoId, Integer cantidad, BigDecimal precioUnitario) {
+        items.add(new ItemPedido(null, this, productoId, cantidad, precioUnitario));
+    }
+
+    public void calcularMontoTotal() {
+        montoTotal = items.stream()
+                .map(item -> item.getPrecioUnitario().multiply(BigDecimal.valueOf(item.getCantidad())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    public void cambiarEstado(EstadoPedido nuevoEstado) {
+        estado = nuevoEstado;
+        fechaActualizacion = LocalDateTime.now();
+    }
 }
