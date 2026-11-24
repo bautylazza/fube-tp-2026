@@ -18,7 +18,8 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T2.1): POST /api/v1/reservas in servicio-inventario
 - (T2.2): PATCH /api/v1/reservas/{id} in servicio-inventario
 - (A4): PATCH /api/v1/reservas?pedidoId= in servicio-inventario
-- (T1.3): Error handling with ProblemDetail in servicio-pedidos
+- (T2.3): Error handling with ProblemDetail in servicio-pedidos
+- (T2.4): HTTP client from servicio-pedidos to servicio-clientes
 
 
 ### Changed
