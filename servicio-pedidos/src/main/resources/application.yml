@@ -29,3 +29,8 @@ servicios:
 
 expiracion-pedidos:
   cron: "0 0 3 * * *"
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
