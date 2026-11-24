@@ -15,3 +15,7 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+statsig:
+  server-secret: ${STATSIG_SERVER_SECRET:}
+  environment: development
