@@ -21,6 +21,11 @@ public class RestClientConfig {
         return builder.baseUrl(url).requestFactory(requestFactory()).build();
     }
 
+    @Bean
+    public RestClient inventarioRestClient(RestClient.Builder builder, @Value("${servicios.inventario.url}") String url) {
+        return builder.baseUrl(url).requestFactory(requestFactory()).build();
+    }
+
     private ClientHttpRequestFactory requestFactory() {
         HttpClient httpClient = HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_1_1)
