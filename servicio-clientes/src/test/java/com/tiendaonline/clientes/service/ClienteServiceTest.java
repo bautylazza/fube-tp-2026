@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.tiendaonline.clientes.dto.ClienteResponse;
@@ -23,6 +24,7 @@ import com.tiendaonline.clientes.dto.CrearClienteRequest;
 import com.tiendaonline.clientes.entity.Cliente;
 import com.tiendaonline.clientes.exception.ConflictoException;
 import com.tiendaonline.clientes.exception.RecursoNoEncontradoException;
+import com.tiendaonline.clientes.featureflag.FeatureFlags;
 import com.tiendaonline.clientes.repository.ClienteRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -30,6 +32,12 @@ class ClienteServiceTest {
 
     @Mock
     private ClienteRepository clienteRepository;
+
+    @Mock
+    private FeatureFlags featureFlags;
+
+    @Spy
+    private EnmascaradorPii enmascaradorPii;
 
     @InjectMocks
     private ClienteService clienteService;
@@ -73,6 +81,30 @@ class ClienteServiceTest {
         ClienteResponse response = clienteService.obtener(id);
 
         assertThat(response).isEqualTo(new ClienteResponse(id, "Ana", "ana@mail.com", alta));
+    }
+
+    @Test
+    void obtenerConMaskPiiActivaEnmascaraNombreYEmail() {
+        UUID id = UUID.randomUUID();
+        LocalDateTime alta = LocalDateTime.now();
+        when(clienteRepository.findById(id)).thenReturn(Optional.of(new Cliente(id, "Juan Perez", "juan@gmail.com", alta)));
+        when(featureFlags.estaActiva("mask-pii", id.toString())).thenReturn(true);
+
+        ClienteResponse response = clienteService.obtener(id);
+
+        assertThat(response).isEqualTo(new ClienteResponse(id, "J*** P***", "****@****.com", alta));
+    }
+
+    @Test
+    void obtenerConMaskPiiInactivaDevuelveLosDatosSinEnmascarar() {
+        UUID id = UUID.randomUUID();
+        LocalDateTime alta = LocalDateTime.now();
+        when(clienteRepository.findById(id)).thenReturn(Optional.of(new Cliente(id, "Juan Perez", "juan@gmail.com", alta)));
+        when(featureFlags.estaActiva("mask-pii", id.toString())).thenReturn(false);
+
+        ClienteResponse response = clienteService.obtener(id);
+
+        assertThat(response).isEqualTo(new ClienteResponse(id, "Juan Perez", "juan@gmail.com", alta));
     }
 
     @Test
