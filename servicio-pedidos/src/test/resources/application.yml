@@ -15,3 +15,8 @@ spring:
   batch:
     job:
       enabled: false
+servicios:
+  clientes:
+    url: http://localhost:1
+  inventario:
+    url: http://localhost:1
