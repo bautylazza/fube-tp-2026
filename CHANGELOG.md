@@ -24,6 +24,7 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T3.1): POST /api/v1/pedidos in servicio-pedidos
 - (T3.2): GET /api/v1/pedidos/{id} and GET /api/v1/pedidos?clienteId= in servicio-pedidos
 - (T3.3): PATCH /api/v1/pedidos/{id} in servicio-pedidos
+- (T4.3): Spring Batch metadata tables migration in servicio-pedidos
 
 
 ### Changed
