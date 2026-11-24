@@ -50,10 +50,9 @@ public class ClienteService {
         ClienteResponse cliente = clienteRepository.findById(id)
                 .map(ClienteResponse::desde)
                 .orElseThrow(() -> clienteNoEncontrado(id));
-        if (featureFlags.estaActiva(FeatureFlags.MASK_PII, id.toString())) {
-            return enmascarar(cliente);
-        }
-        return cliente;
+        boolean enmascarado = featureFlags.estaActiva(FeatureFlags.MASK_PII, id.toString());
+        log.info("Cliente consultado {} {}", kv("clienteId", id), kv("maskPii", enmascarado));
+        return enmascarado ? enmascarar(cliente) : cliente;
     }
 
     public PedidosResponse listarPedidos(UUID id) {

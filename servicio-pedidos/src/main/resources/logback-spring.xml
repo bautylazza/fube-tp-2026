@@ -21,6 +21,7 @@
 
     <springProfile name="loki">
         <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+            <batchTimeoutMs>1000</batchTimeoutMs>
             <http>
                 <url>${LOKI_URL}</url>
             </http>
