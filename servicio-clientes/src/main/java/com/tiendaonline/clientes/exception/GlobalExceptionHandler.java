@@ -27,6 +27,12 @@ public class GlobalExceptionHandler {
         return problema(HttpStatus.CONFLICT, "Conflicto", ex.getMessage());
     }
 
+    @ExceptionHandler(ServicioNoDisponibleException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public ProblemDetail handleServicioNoDisponible(ServicioNoDisponibleException ex) {
+        return problema(HttpStatus.SERVICE_UNAVAILABLE, "Servicio no disponible", ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ProblemDetail handleValidacion(MethodArgumentNotValidException ex) {

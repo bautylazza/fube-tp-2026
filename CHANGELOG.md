@@ -26,6 +26,9 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T3.3): PATCH /api/v1/pedidos/{id} in servicio-pedidos
 - (T4.3): Spring Batch metadata tables migration in servicio-pedidos
 - (T4.4): Nightly order expiration job and POST /api/v1/jobs/expiracion-pedidos/ejecuciones
+- (T4.1): PII masking for client name and email
+- (T4.2): mask-pii feature flag with Statsig in GET /api/v1/clientes/{id}
+- (T3.4): GET /api/v1/clientes/{id}/pedidos in servicio-clientes
 
 
 ### Changed
