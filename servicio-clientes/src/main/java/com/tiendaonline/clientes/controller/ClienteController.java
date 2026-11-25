@@ -38,12 +38,12 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    public ClienteResponse obtener(@PathVariable UUID id) {
+    public ClienteResponse obtener(@PathVariable("id") UUID id) {
         return clienteService.obtener(id);
     }
 
     @GetMapping("/{id}/pedidos")
-    public PedidosResponse pedidos(@PathVariable UUID id) {
+    public PedidosResponse pedidos(@PathVariable("id") UUID id) {
         return clienteService.listarPedidos(id);
     }
 }

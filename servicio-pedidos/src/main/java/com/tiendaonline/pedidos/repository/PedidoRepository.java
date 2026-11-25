@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.tiendaonline.pedidos.entity.Pedido;
 
@@ -22,7 +23,7 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select p from Pedido p where p.id = :id")
-    Optional<Pedido> findByIdParaActualizar(UUID id);
+    Optional<Pedido> findByIdParaActualizar(@Param("id") UUID id);
 
     @Modifying
     @Query("""
@@ -31,5 +32,5 @@ public interface PedidoRepository extends JpaRepository<Pedido, UUID> {
                 p.fechaActualizacion = :fecha
             where p.id = :id
               and p.estado = com.tiendaonline.pedidos.entity.EstadoPedido.CREADO""")
-    int expirarSiSigueCreado(UUID id, LocalDateTime fecha);
+    int expirarSiSigueCreado(@Param("id") UUID id, @Param("fecha") LocalDateTime fecha);
 }

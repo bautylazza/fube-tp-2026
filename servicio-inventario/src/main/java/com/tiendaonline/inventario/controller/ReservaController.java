@@ -40,12 +40,12 @@ public class ReservaController {
     }
 
     @PatchMapping ("/{id}")
-    public ReservaResponse actualizar(@PathVariable UUID id, @Valid @RequestBody ActualizarReservaRequest request) {
+    public ReservaResponse actualizar(@PathVariable("id") UUID id, @Valid @RequestBody ActualizarReservaRequest request) {
         return reservaService.liberar(id);
     }
 
     @PatchMapping 
-    public ReservasResponse actualizarPorPedido(@RequestParam UUID pedidoId, @Valid @RequestBody ActualizarReservaRequest request) {
+    public ReservasResponse actualizarPorPedido(@RequestParam("pedidoId") UUID pedidoId, @Valid @RequestBody ActualizarReservaRequest request) {
         return reservaService.liberarPorPedido(pedidoId);
     }
 
