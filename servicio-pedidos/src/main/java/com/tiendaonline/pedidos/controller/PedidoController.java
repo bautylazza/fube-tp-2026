@@ -42,17 +42,17 @@ public class PedidoController {
     }
 
     @GetMapping("/{id}")
-    public PedidoResponse obtener(@PathVariable UUID id) {
+    public PedidoResponse obtener(@PathVariable("id") UUID id) {
         return pedidoService.obtener(id);
     }
 
     @GetMapping
-    public PedidosResponse listarPorCliente(@RequestParam UUID clienteId) {
+    public PedidosResponse listarPorCliente(@RequestParam("clienteId") UUID clienteId) {
         return pedidoService.listarPorCliente(clienteId);
     }
 
     @PatchMapping("/{id}")
-    public PedidoResponse actualizarEstado(@PathVariable UUID id, @Valid @RequestBody ActualizarPedidoRequest request) {
+    public PedidoResponse actualizarEstado(@PathVariable("id") UUID id, @Valid @RequestBody ActualizarPedidoRequest request) {
         return pedidoService.actualizarEstado(id, EstadoPedido.valueOf(request.estado()));
     }
 }
