@@ -23,12 +23,12 @@ public class ProductoController {
     private final ProductoService productoService;
 
     @GetMapping ("/{id}")
-    public ProductoResponse obtener(@PathVariable UUID id) {
+    public ProductoResponse obtener(@PathVariable("id") UUID id) {
         return productoService.obtener(id);
     }
 
     @GetMapping ("/{id}/disponibilidad")
-    public DisponibilidadResponse disponibilidad(@PathVariable UUID id) {
+    public DisponibilidadResponse disponibilidad(@PathVariable("id") UUID id) {
         return productoService.obtenerDisponibilidad(id);
     }
 }

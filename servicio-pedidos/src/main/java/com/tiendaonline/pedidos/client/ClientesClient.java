@@ -1,5 +1,7 @@
 package com.tiendaonline.pedidos.client;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -10,7 +12,9 @@ import org.springframework.web.client.RestClientException;
 
 import com.tiendaonline.pedidos.exception.ReferenciaInvalidaException;
 import com.tiendaonline.pedidos.exception.ServicioNoDisponibleException;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component 
 public class ClientesClient {
 
@@ -27,8 +31,10 @@ public class ClientesClient {
                     .retrieve()
                     .toBodilessEntity();
         } catch (HttpClientErrorException.NotFound ex) {
+            log.warn("Cliente no encontrado {}", kv("clienteId", clienteId));
             throw new ReferenciaInvalidaException("Cliente no encontrado: " + clienteId);
         } catch (RestClientException ex) {
+            log.error("servicio-clientes no responde {}", kv("clienteId", clienteId), ex);
             throw new ServicioNoDisponibleException("servicio-clientes no responde", ex);
         }
     }

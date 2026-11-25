@@ -29,6 +29,8 @@ y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
 - (T4.1): PII masking for client name and email
 - (T4.2): mask-pii feature flag with Statsig in GET /api/v1/clientes/{id}
 - (T3.4): GET /api/v1/clientes/{id}/pedidos in servicio-clientes
+- (T5.1): Tracing with Micrometer and X-Trace-Id response header in the three services
+- (T5.2): JSON logs, Loki appender (profile loki) and docker-compose with Loki and Grafana
 
 
 ### Changed

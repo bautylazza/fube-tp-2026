@@ -1,5 +1,7 @@
 package com.tiendaonline.pedidos.service;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,6 +49,8 @@ public class PedidoService {
             throw ex;
         }
 
+        log.info("Pedido creado {} {} {}", kv("pedidoId", pedido.getId()), kv("clienteId", pedido.getClienteId()),
+                kv("montoTotal", pedido.getMontoTotal()));
         return PedidoResponse.fromEntity(pedido);
     }
 
@@ -84,6 +88,7 @@ public class PedidoService {
         }
 
         pedido.cambiarEstado(nuevoEstado);
+        log.info("Pedido actualizado {} {}", kv("pedidoId", id), kv("estado", nuevoEstado));
         return PedidoResponse.fromEntity(pedido);
     }
 
@@ -101,7 +106,7 @@ public class PedidoService {
             inventarioClient.liberarPorPedido(pedidoId);
         } catch (RuntimeException ex) {
             // Se conserva el error original; las reservas quedan para liberar a mano.
-            log.error("No se pudieron liberar las reservas del pedido {}", pedidoId, ex);
+            log.error("No se pudieron liberar las reservas del pedido {}", kv("pedidoId", pedidoId), ex);
         }
     }
 

@@ -1,5 +1,7 @@
 package com.tiendaonline.pedidos.batch;
 
+import static net.logstash.logback.argument.StructuredArguments.kv;
+
 import java.time.Duration;
 
 import org.springframework.batch.core.JobExecution;
@@ -16,13 +18,13 @@ public class ResumenExpiracionListener implements JobExecutionListener {
     @Override
     public void afterJob(JobExecution jobExecution) {
         for (StepExecution step : jobExecution.getStepExecutions()) {
-            log.info("Resumen expiracion de pedidos: jobExecutionId={} estado={} leidos={} escritos={} saltados={} duracionMs={}",
-                    jobExecution.getId(),
-                    jobExecution.getStatus(),
-                    step.getReadCount(),
-                    step.getWriteCount(),
-                    step.getSkipCount(),
-                    Duration.between(jobExecution.getStartTime(), jobExecution.getEndTime()).toMillis());
+            log.info("Resumen expiracion de pedidos: {} {} {} {} {} {}",
+                    kv("jobExecutionId", jobExecution.getId()),
+                    kv("estado", jobExecution.getStatus()),
+                    kv("leidos", step.getReadCount()),
+                    kv("escritos", step.getWriteCount()),
+                    kv("saltados", step.getSkipCount()),
+                    kv("duracionMs", Duration.between(jobExecution.getStartTime(), jobExecution.getEndTime()).toMillis()));
         }
     }
 }
